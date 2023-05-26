@@ -1,0 +1,33 @@
+services:
+  web-app:
+    build:
+      # zabildit obraz iz dockerfile
+      context: .
+    ports:
+      # perebrozka portov
+      - "8000:8000"
+    volumes:
+      # localnaya directoriya i doker composa svyazani
+      # esli izmenitsa lokalniy fayl i dockera toje izmenitsa
+      - ./service:/service
+    environment:
+      - DB_HOST=database
+      - DB_NAME=dbname
+      - DB_USER=postgres
+      - DB_PASS=123456
+    command: >
+      sh -c "python manage.py runserver 0.0.0.0:8000"
+
+    depends_on:
+      - database
+
+  database:
+    image: postgres:14.6-alpine
+    environment:
+      - POSTGRES_DB=dbname
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=123456
+    ports:
+      - 5434:5432
+    expose:
+      - 5432
