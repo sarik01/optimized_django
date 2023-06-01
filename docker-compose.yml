@@ -35,12 +35,38 @@ services:
   redis:
     image: redis:7.0.5-alpine
     hostname: redis
+    ports:
+      - 16379:6379
 
   worker:
     build:
       context: .
-    # po kokomu histu budet opred-sa celery-service
+    # po kakomu hostu budet opred-sa celery-service
     hostname: worker
+    # bazovaya commanda s kotoroy budem vizivat dr komandi
+    entrypoint: celery
+    # dr komanda
+    command: -A celery_app.app worker --loglevel=info
+    volumes:
+      # localnaya directoriya i doker composa svyazani
+      # esli izmenitsa lokalniy fayl i dockera toje izmenitsa
+      - ./service:/service
+    links:
+      - redis
+    depends_on:
+      - redis
+      - database
+    environment:
+      - DB_HOST=database
+      - DB_NAME=dbname
+      - DB_USER=postgres
+      - DB_PASS=123456
+
+  worker2:
+    build:
+      context: .
+    # po kakomu hostu budet opred-sa celery-service
+    hostname: worker2
     # bazovaya commanda s kotoroy budem vizivat dr komandi
     entrypoint: celery
     # dr komanda
