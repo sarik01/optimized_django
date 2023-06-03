@@ -25,7 +25,8 @@ router.register(r'api/subscriptions', SubscriptionView)
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', include(router.urls))
+    path('', include(router.urls)),
+    path('web/', include("web.urls"))
 ]
 
 

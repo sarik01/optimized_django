@@ -1,11 +1,13 @@
 from django.core.validators import MaxValueValidator
 from django.db import models
 from django.db.models.signals import post_delete
+from django.urls import reverse
 
 from services.receivers import delete_cache_total_sum
 from services.tasks import set_price, set_comment
 from clients.models import Client
 
+from django.contrib.contenttypes.fields import GenericRelation, GenericForeignKey
 
 # Create your models here.
 class Service(models.Model):
@@ -49,6 +51,9 @@ class Plan(models.Model):
                 set_comment.delay(subscription.id)
 
         return super().save(*args, **kwargs)
+
+    def get_absolute_url(self):
+        return reverse("web:update_plan", args=[self.id])
 
 
 class Subscription(models.Model):

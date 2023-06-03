@@ -44,6 +44,7 @@ INSTALLED_APPS = [
 
     'clients',
     'services',
+    'web',
 
 
 ]
@@ -172,3 +173,7 @@ PRICE_CACHE_NAME = 'price_cache'
 CELERY_RESULT_BACKEND = 'django-db'
 
 CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'
+
+STATIC_URL = '/static/'
+STATIC_ROOT = 'static'
+MEDIA_ROOT = 'media'

@@ -1,3 +1,5 @@
+version: "3.9"
+
 services:
   web-app:
     build:
@@ -10,16 +12,23 @@ services:
       # localnaya directoriya i doker composa svyazani
       # esli izmenitsa lokalniy fayl i dockera toje izmenitsa
       - ./service:/service
+      - static_volume:/service/static
+      - media_volume:/service/media
     environment:
       - DB_HOST=database
       - DB_NAME=dbname
       - DB_USER=postgres
       - DB_PASS=123456
     command: >
-      sh -c "python manage.py runserver 0.0.0.0:8000"
+      sh -c "python manage.py collectstatic --noinput && python manage.py migrate  && gunicorn -b 0.0.0.0:8000 service.wsgi:application"
+    expose:
+      - "8000"
+
 
     depends_on:
       - database
+
+
 
   database:
     image: postgres:14.6-alpine
@@ -29,8 +38,8 @@ services:
       - POSTGRES_PASSWORD=123456
     ports:
       - 5434:5432
-    expose:
-      - 5432
+    volumes:
+      - ~/.pg/pg_data/service:/var/lib/postgresql/data
 
   redis:
     image: redis:7.0.5-alpine
@@ -100,3 +109,22 @@ services:
       - redis
     ports:
       - "5555:5555"
+
+  nginx:
+    build:
+      dockerfile: ./Dockerfile
+      context: ./docker/nginx/
+    container_name: yt_nginx
+    image: yt_nginx
+    volumes:
+      - static_volume:/service/static
+      - media_volume:/service/media
+    depends_on:
+      - web-app
+    ports:
+      - "80:80"
+
+volumes:
+  static_volume:
+  media_volume:
+
